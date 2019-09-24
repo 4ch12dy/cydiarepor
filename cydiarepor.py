@@ -5,6 +5,7 @@ import shlex
 import optparse
 import gzip
 import StringIO
+import bz2
 
 
 def get_default_cydia_repo_array():
@@ -27,10 +28,17 @@ def is_url_reachable(url):
 	
 	return False
 	
-def unzip_data_to_string(data):
-	compressedstream = StringIO.StringIO(data)
-	gziper = gzip.GzipFile(fileobj=compressedstream)
-	unzip_string = gziper.read()
+def unzip_data_to_string(data, unzip_type):
+	unzip_string = ""
+	if unzip_type == "gz":
+		compressedstream = StringIO.StringIO(data)
+		gziper = gzip.GzipFile(fileobj=compressedstream)
+		unzip_string = gziper.read()
+	elif unzip_type == "bz2":
+		unzip_string = bz2.decompress(data)
+	else:
+		print("[-] unkown zip type!")
+		exit(1)
 	
 	return unzip_string
 	
@@ -59,15 +67,19 @@ def get_cydiarepo_packages(repoURL):
 	cydiarepo_Packages_gz_URL = repoURL + '/Packages.gz'
 	cydiarepo_reachable_URL = ''
 	is_need_unzip = False
+	unzip_type = ''
 	
 	if is_url_reachable(cydiarepo_Packages_URL):
 		cydiarepo_reachable_URL = cydiarepo_Packages_URL
 	elif is_url_reachable(cydiarepo_Packages_bz2_URL):
 		cydiarepo_reachable_URL = cydiarepo_Packages_bz2_URL
 		is_need_unzip = True
+		unzip_type = "bz2"
+		
 	elif is_url_reachable(cydiarepo_Packages_gz_URL):
 		cydiarepo_reachable_URL = cydiarepo_Packages_gz_URL
 		is_need_unzip = True
+		unzip_type = "gz"
 	else:
 		print("[-] {} repo not found Packages or Packages.bz2 or Packages.gz file, check it!")
 		exit(1)
@@ -77,7 +89,7 @@ def get_cydiarepo_packages(repoURL):
 	raw_packages_string = ""
 	
 	if is_need_unzip:
-		raw_packages_string = unzip_data_to_string(raw_packages_data)
+		raw_packages_string = unzip_data_to_string(raw_packages_data, unzip_type)
 	else:
 		raw_packages_string = raw_packages_data
 	
