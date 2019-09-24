@@ -45,7 +45,11 @@ def get_cydiarepo_packages(repoURL):
 			need_item_array = ["Package", "Version", "Filename", "Name", "Description"]
 			if deb_item_k in need_item_array:
 				cur_deb[deb_item_k] = deb_item_v
-
+			
+			for k in need_item_array:
+				if not cur_deb.has_key(k):
+					cur_deb[k] = ""
+			
 		if cur_deb:
 			all_deb.append(cur_deb)
 	
