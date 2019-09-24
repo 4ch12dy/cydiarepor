@@ -1,12 +1,10 @@
 # cydiarepor
 a python cydia repo parse tool to list and search deb to download
 
-
-
 #### List cydia repo
 
 ```shell
-xia0 ~ $python cydiarepor.py https://xia0z.github.io -l
+xia0 ~ $ python cydiarepor.py https://xia0z.github.io -l
 -------------------------------------------------------------------
 | N |           package            |             name             |
 -------------------------------------------------------------------
@@ -24,7 +22,7 @@ xia0 ~ $python cydiarepor.py https://xia0z.github.io -l
 #### Download deb by given search string
 
 ```shell
-xia0 ~ $python cydiarepor.py https://xia0z.github.io -s "fk"
+xia0 ~ $ python cydiarepor.py https://xia0z.github.io -s "fk"
 -------------------------------------------------------------------
 | N |           package            |             name             |
 -------------------------------------------------------------------
@@ -39,5 +37,19 @@ xia0 ~ $python cydiarepor.py https://xia0z.github.io -s "fk"
 ```
 
 
+
+#### List or search deb  by given search string in default cydia repo
+
+here is the default cydia repo :
+
+| Repo            | URL                                |
+| --------------- | ---------------------------------- |
+| BigBoss         | https://repounclutter.coolstar.org |
+| Chimera Repo    | https://repo.chimera.sh            |
+| Frida           | https://build.frida.re             |
+| CoolStar's Repo | https://coolstar.org/publicrepo    |
+| xia0Repo        | https://xia0z.github.io            |
+
+try `python cydiarepor.py -d -l` or `python cydiarepor.py -d -s "Frida"`
 
 #### Enjoy it~

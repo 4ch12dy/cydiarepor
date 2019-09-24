@@ -3,7 +3,37 @@ import requests
 import sys
 import shlex
 import optparse
+import gzip
+import StringIO
 
+
+def get_default_cydia_repo_array():
+	default_repos = []
+	# BigBoss of coolstar
+	default_repos.append("https://repounclutter.coolstar.org")
+	default_repos.append("https://repo.chimera.sh")
+	default_repos.append("https://build.frida.re")
+	default_repos.append("https://coolstar.org/publicrepo")
+	default_repos.append("https://xia0z.github.io")
+	
+	return default_repos
+	
+def is_url_reachable(url):
+	r = requests.get(url, allow_redirects = False)
+	status = r.status_code
+	
+	if status == 200:
+		return True
+	
+	return False
+	
+def unzip_data_to_string(data):
+	compressedstream = StringIO.StringIO(data)
+	gziper = gzip.GzipFile(fileobj=compressedstream)
+	unzip_string = gziper.read()
+	
+	return unzip_string
+	
 def http_get(url):
 	r = requests.get(url, stream=True)
 	return r
@@ -25,11 +55,35 @@ def get_cydiarepo_packages(repoURL):
 #	Depiction: https://joker2gun.github.io/depictions/?p=com.archry.joker
 #	Name: Archery King Hack
 	cydiarepo_Packages_URL = repoURL + '/Packages'
-	r = requests.get(cydiarepo_Packages_URL)
+	cydiarepo_Packages_bz2_URL = repoURL + '/Packages.bz2'
+	cydiarepo_Packages_gz_URL = repoURL + '/Packages.gz'
+	cydiarepo_reachable_URL = ''
+	is_need_unzip = False
+	
+	if is_url_reachable(cydiarepo_Packages_URL):
+		cydiarepo_reachable_URL = cydiarepo_Packages_URL
+	elif is_url_reachable(cydiarepo_Packages_bz2_URL):
+		cydiarepo_reachable_URL = cydiarepo_Packages_bz2_URL
+		is_need_unzip = True
+	elif is_url_reachable(cydiarepo_Packages_gz_URL):
+		cydiarepo_reachable_URL = cydiarepo_Packages_gz_URL
+		is_need_unzip = True
+	else:
+		print("[-] {} repo not found Packages or Packages.bz2 or Packages.gz file, check it!")
+		exit(1)
 
-	raw_packages_string = r.content
+	r = requests.get(cydiarepo_reachable_URL)
+	raw_packages_data = r.content
+	raw_packages_string = ""
+	
+	if is_need_unzip:
+		raw_packages_string = unzip_data_to_string(raw_packages_data)
+	else:
+		raw_packages_string = raw_packages_data
+	
 	raw_packages_list = raw_packages_string.split("\n\n")
-
+	
+	repo_info = {"url":repoURL}
 	all_deb = []
 	for raw_package_string in raw_packages_list:
 		raw_deb_list = raw_package_string.split("\n")
@@ -50,10 +104,23 @@ def get_cydiarepo_packages(repoURL):
 				if not cur_deb.has_key(k):
 					cur_deb[k] = ""
 			
+			cur_deb["repo"]=repo_info
+
 		if cur_deb:
 			all_deb.append(cur_deb)
 	
 	return all_deb
+	
+	
+def get_debs_in_default_cydia_repo():
+	default_repo_ulrs = get_default_cydia_repo_array()
+	defult_debs = []
+	
+	for url in default_repo_ulrs:
+		debs = get_cydiarepo_packages(url)
+		defult_debs += debs
+		
+	return defult_debs
 	
 def is_need_by_search_string(deb, contained_str):
 	name = deb['Name']
@@ -81,8 +148,14 @@ def download_deb_file(repo_url, deb):
 		f.write(deb_data)
 #	wget.download(deb_download_url, save_path)
 
-def list_all_repo_deb(repo_url):
-	debs = get_cydiarepo_packages(repo_url)
+def list_all_repo_deb(debs):
+	print("-"*(3+30+30+4))
+	title = "Developed By xia0@2019 Blog:https://4ch12dy.site"
+	print("|"+format(title,"^65")+"|")
+	
+	print("-"*(3+30+30+4))
+	total_str = "Total:{}".format(len(debs))
+	print("|"+format(total_str,"^65")+"|")
 	print("-"*(3+30+30+4))
 	print("|"+format("N", "^3") + "|" + format("package", "^30")+"|"+format("name", "^30")+"|")
 	print("-"*(3+30+30+4))
@@ -100,19 +173,22 @@ def list_all_repo_deb(repo_url):
 			else:
 				print("[-] error choice")
 				exit(1)
-			
-
+	
 		print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"], "^30") + "|")
 	
 	print("-"*(3+30+30+4))
 	
 def list_deb(debs):
-	print("-"*(3+30+30+4))
-	print("|"+format("N", "^3") + "|" + format("package", "^30")+"|"+format("name", "^30")+"|")
-	print("-"*(3+30+30+4))
+	com_item_wid = 30
+	total_wid = 1+3+ (com_item_wid +1) *3 + 1
+	
+	print("-"*total_wid)
+	print("|"+format("N", "^3") + "|" + format("package", "^30")+"|"+format("name", "^30")+"|"+format("repo url", "^30")+"|")
+	print("-"*total_wid)
 	for i in range(len(debs)):
-		print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"], "^30") + "|")
-	print("-"*(3+30+30+4))
+		print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"], "^30") + "|" + format(debs[i]["repo"]["url"], "^30") + "|")
+	
+	print("-"*total_wid)
 	
 def generate_option_parser():
 	usage = "[usage]: cydiarepor cydiarepo_url -s search_string -l"
@@ -130,9 +206,15 @@ def generate_option_parser():
 				dest="searchstring",
 				help="search deb by string")
 				
+	parser.add_option("-d", "--default",
+				action="store_true",
+				default=None,
+				dest="defaultrepos",
+				help="search deb by string in default repos")
+				
 	return parser
 
-if __name__ == "__main__":		
+if __name__ == "__main__":			
 	cydiarepoURL = ''
 	parser = generate_option_parser()
 	
@@ -147,11 +229,44 @@ if __name__ == "__main__":
 		print(parser.usage)
 		exit(1)
 		
+	if options.defaultrepos:
+		if options.searchstring:
+			need_debs = []
+			search_string = options.searchstring
+
+			debs = get_debs_in_default_cydia_repo()
+			for deb in debs:
+				if is_need_by_search_string(deb, search_string):
+					need_debs.append(deb)
+			
+			list_deb(need_debs)
+			num = input(">> inout number of deb want to download:")
+			
+			print("[*] you choose {} deb:\"{}\"".format(num, need_debs[num]['Name']))
+			
+			print("[*] start to download:{}".format(need_debs[num]['Name']))
+			cydiarepoURL = need_debs[num]["repo"]["url"]
+			download_deb_file(cydiarepoURL, need_debs[num])
+			
+			print("[+] download deb done")
+			exit(0)
+			
+		if options.listdeb:
+			all_defualt_debs = []
+			
+			for url in get_default_cydia_repo_array():
+				debs = get_cydiarepo_packages(url)
+				all_defualt_debs += debs
+			
+			list_all_repo_deb(all_defualt_debs)
+			exit(0)
+		
 	if options.listdeb:
 		cydiarepoURL = args[0]
-		list_all_repo_deb(cydiarepoURL)
+		debs = get_cydiarepo_packages(cydiarepoURL)
+		list_all_repo_deb(debs)
 		exit(0)
-	
+
 	if options.searchstring:
 		need_debs = []
 		search_string = options.searchstring
@@ -171,5 +286,7 @@ if __name__ == "__main__":
 		download_deb_file(cydiarepoURL, need_debs[num])
 		
 		print("[+] download deb done")
+		exit(0)
 			
+	print("[-] you can not reach here!!!")
 	
