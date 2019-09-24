@@ -81,7 +81,7 @@ def get_cydiarepo_packages(repoURL):
 		is_need_unzip = True
 		unzip_type = "gz"
 	else:
-		print("[-] {} repo not found Packages or Packages.bz2 or Packages.gz file, check it!")
+		print("[-] {} repo not found Packages or Packages.bz2 or Packages.gz file, check it!".format(repoURL))
 		exit(1)
 
 	r = requests.get(cydiarepo_reachable_URL)
@@ -173,7 +173,7 @@ def list_all_repo_deb(debs):
 	print("-"*(3+30+30+4))
 	for i in range(len(debs)):
 		if (i+1) % 40 == 0:
-			print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"], "^30") + "|")
+			print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"]+"("+debs[i]["Version"]+")", "^30") + "|")
 			print("-"*(3+30+30+4))
 			choice = input("|" + "do you want to continue?[1/0]: ")
 			print("-"*(3+30+30+4))
@@ -198,7 +198,7 @@ def list_deb(debs):
 	print("|"+format("N", "^3") + "|" + format("package", "^30")+"|"+format("name", "^30")+"|"+format("repo url", "^30")+"|")
 	print("-"*total_wid)
 	for i in range(len(debs)):
-		print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"], "^30") + "|" + format(debs[i]["repo"]["url"], "^30") + "|")
+		print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"]+"("+debs[i]["Version"]+")", "^30") + "|" + format(debs[i]["repo"]["url"], "^30") + "|")
 	
 	print("-"*total_wid)
 	
