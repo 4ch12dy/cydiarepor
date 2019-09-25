@@ -75,7 +75,7 @@ def http_get(url):
     r = requests.get(url, stream=True)
     return r
 
-def get_cydiarepo_packages(repoURL):
+def get_debs_from_cydiarepoURL(repoURL):
 #    Package: com.archry.joker
 #    Version: 1.0.30-1+debug
 #    Architecture: iphoneos-arm
@@ -171,7 +171,7 @@ def get_debs_in_default_cydia_repo():
     defult_debs = []
     
     for url in default_repo_ulrs:
-        debs = get_cydiarepo_packages(url)
+        debs = get_debs_from_cydiarepoURL(url)
         defult_debs += debs
         
     return defult_debs
@@ -309,7 +309,7 @@ if __name__ == "__main__":
             all_defualt_debs = []
             
             for url in get_default_cydia_repo_array():
-                debs = get_cydiarepo_packages(url)
+                debs = get_debs_from_cydiarepoURL(url)
                 all_defualt_debs += debs
             
             list_all_repo_deb(all_defualt_debs)
@@ -320,7 +320,7 @@ if __name__ == "__main__":
             print(parser.usage)
             exit(1)
         cydiarepoURL = args[0]
-        debs = get_cydiarepo_packages(cydiarepoURL)
+        debs = get_debs_from_cydiarepoURL(cydiarepoURL)
         list_all_repo_deb(debs)
         exit(0)
 
@@ -332,7 +332,7 @@ if __name__ == "__main__":
         need_debs = []
         search_string = options.searchstring
         cydiarepoURL = args[0]
-        debs = get_cydiarepo_packages(cydiarepoURL)
+        debs = get_debs_from_cydiarepoURL(cydiarepoURL)
         for deb in debs:
             if is_need_by_search_string(deb, search_string):
                 need_debs.append(deb)
