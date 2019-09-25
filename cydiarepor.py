@@ -193,7 +193,7 @@ def is_need_by_search_string(deb, contained_str):
 
 
 def download_deb_file(repo_url, deb):
-    deb_download_url = repo_url + deb['Filename'][1:]
+    deb_download_url = repo_url + "/./" + deb['Filename']
     save_path = "./" + deb['Package'] + "_"+ deb['Version'] + ".deb"
     
     r = http_get(deb_download_url)
