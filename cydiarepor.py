@@ -6,6 +6,7 @@ import optparse
 import gzip
 import StringIO
 import bz2
+import urlparse
 
 
 def get_default_cydia_repo_array():
@@ -18,6 +19,33 @@ def get_default_cydia_repo_array():
     default_repos.append("https://xia0z.github.io")
     
     return default_repos
+    
+    
+def handle_old_cydia_repo(url):
+    parse_result = urlparse.urlparse(url)
+    scheme = '{uri.scheme}'.format(uri=parse_result)
+    url = url[len(scheme):]
+    
+    old_BigBoss_repo = "://apt.thebigboss.org/repofiles/cydia"
+    old_bingner_repo = "://apt.bingner.com"
+    repo_package_url = ""
+    zip_type = ""
+    ret = []
+    
+    if url == old_BigBoss_repo:
+        repo_package_url = scheme+old_BigBoss_repo + "/dists/stable/main/binary-iphoneos-arm/Packages.bz2"
+        zip_type = "bz2"
+        ret.append(repo_package_url)
+        ret.append(zip_type)
+    elif url == old_bingner_repo:
+        repo_package_url = scheme+old_bingner_repo + "/dists/ios/1443.00/"+"main/binary-iphoneos-arm/Packages.bz2"
+        zip_type = "bz2"
+        ret.append(repo_package_url)
+        ret.append(zip_type)
+    else:
+        ret = None
+
+    return ret
     
 def is_url_reachable(url):
     r = requests.get(url, allow_redirects = False)
@@ -66,6 +94,18 @@ def get_cydiarepo_packages(repoURL):
     cydiarepo_Packages_URL = repoURL + '/Packages'
     cydiarepo_Packages_bz2_URL = repoURL + '/Packages.bz2'
     cydiarepo_Packages_gz_URL = repoURL + '/Packages.gz'
+    
+    if handle_old_cydia_repo(repoURL):
+        ret = handle_old_cydia_repo(repoURL)
+        zip_type = ret[1]
+        if zip_type == "gz":
+            cydiarepo_Packages_gz_URL = ret[0]
+        elif zip_type == "bz2":
+            cydiarepo_Packages_bz2_URL = ret[0]
+        else:
+            print("[-] unknown old cydia repo zip type")
+            exit(1)
+    
     cydiarepo_reachable_URL = ''
     is_need_unzip = False
     unzip_type = ''
