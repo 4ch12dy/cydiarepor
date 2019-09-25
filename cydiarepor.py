@@ -245,7 +245,7 @@ def list_deb(debs):
     print("-"*total_wid)
     
 def generate_option_parser():
-    usage = "[usage]: cydiarepor cydiarepo_url -s search_string -l"
+    usage = "[usage]: cydiarepor [cydiarepo_url, -d] [-s <search_string>, -l]"
     parser = optparse.OptionParser(usage=usage, prog="lookup")
 
     parser.add_option("-l", "--list",
@@ -316,12 +316,19 @@ if __name__ == "__main__":
             exit(0)
         
     if options.listdeb:
+        if len(args) != 1:
+            print(parser.usage)
+            exit(1)
         cydiarepoURL = args[0]
         debs = get_cydiarepo_packages(cydiarepoURL)
         list_all_repo_deb(debs)
         exit(0)
 
     if options.searchstring:
+        if len(args) != 1:
+            print(parser.usage)
+            exit(1)
+        
         need_debs = []
         search_string = options.searchstring
         cydiarepoURL = args[0]
