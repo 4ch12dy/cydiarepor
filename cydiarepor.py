@@ -16,6 +16,7 @@ def get_default_cydia_repo_array():
     default_repos.append("https://repo.chimera.sh")
     default_repos.append("https://build.frida.re")
     default_repos.append("https://coolstar.org/publicrepo")
+    default_repos.append("https://apt.bingner.com")
     default_repos.append("https://xia0z.github.io")
     
     return default_repos

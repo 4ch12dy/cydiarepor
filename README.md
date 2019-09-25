@@ -49,6 +49,7 @@ here is the default cydia repo :
 | Frida           | https://build.frida.re             |
 | CoolStar's Repo | https://coolstar.org/publicrepo    |
 | xia0Repo        | https://xia0z.github.io            |
+| Bingner         | https://apt.bingner.com            |
 
 try `python cydiarepor.py -d -l` or `python cydiarepor.py -d -s "Frida"`
 
