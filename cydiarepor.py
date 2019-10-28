@@ -217,12 +217,11 @@ def list_all_repo_deb(debs):
         if (i+1) % 40 == 0:
             print("|"+format(i,"<3")+"|" + format(debs[i]["Package"], "^30")+ "|" + format(debs[i]["Name"]+"("+debs[i]["Version"]+")", "^30") + "|")
             print("-"*(3+30+30+4))
-            choice = input("|" + "do you want to continue?[1/0]: ")
+            choice = raw_input("|" + "do you want to continue?[Y/N]: ")
             print("-"*(3+30+30+4))
-            
-            if choice == 0:
+            if choice == 'N' or choice == 'n':
                 break
-            elif choice == 1:
+            elif choice == 'Y' or choice == 'y':
                 continue
             else:
                 print("[-] error choice")
